@@ -7,11 +7,10 @@ namespace TelegramBot
 {
     class job
     {
-        private int id { get; set; }
-        private string name { get; set; }
-        private bool status { get; set; }
-        private string createDate { get; set; }
-        private string endDate { get; set; }
+        public string name { get; set; }
+        public bool status { get; set; }
+        public string createDate { get; set; }
+        public string endDate { get; set; }
 
         public job()
         {
@@ -19,7 +18,10 @@ namespace TelegramBot
         }
         public void add(string strName,bool bStatus, string strCreateDate, string strEndDate)
         {
-
+            name = strName;
+            status = bStatus;
+            createDate = strCreateDate;
+            endDate = strEndDate;
         }
     }
 }

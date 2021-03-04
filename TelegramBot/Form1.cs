@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,6 +17,8 @@ namespace TelegramBot
     public partial class Form1 : Form
     {
         static ITelegramBotClient botClient;
+        static Telegram.Bot.Types.Chat chatid;
+        static List<job> listJob = new List<job>();
         public Form1()
         {
             InitializeComponent();
@@ -24,11 +27,8 @@ namespace TelegramBot
    
         static async void Bot_OnMessage(object sender, MessageEventArgs messageEventArgs)
         {
-            if (messageEventArgs.Message.Text != null)
-                await botClient.SendTextMessageAsync(
-                  chatId: messageEventArgs.Message.Chat,
-                  text: "You said:\n" + messageEventArgs.Message.Text
-                );
+
+            chatid = messageEventArgs.Message.Chat;
 
             var message = messageEventArgs.Message;
             if (message == null || message.Type != MessageType.Text)
@@ -69,37 +69,62 @@ namespace TelegramBot
                     break;
 
             }
-            }
+         }
 
-        private static Task done(Telegram.Bot.Types.Message message)
+        private static async Task  done(Telegram.Bot.Types.Message message)
+        {
+            await botClient.SendTextMessageAsync(
+                     chatId: chatid,
+                     text: "Đã hoàn thành công việc"
+                   );
+
+        }
+
+        private static async Task edit(Telegram.Bot.Types.Message message)
+        {
+            await botClient.SendTextMessageAsync(
+                   chatId: chatid,
+                   text: "Đã sửa công việc."
+                 );
+        }
+
+        private static async Task delete(Telegram.Bot.Types.Message message)
+        {
+            await botClient.SendTextMessageAsync(
+                  chatId: chatid,
+                  text: "Đã xóa công việc."
+                );
+        }
+
+        private static async Task list(Telegram.Bot.Types.Message message)
+        {
+            string itext ="" ;
+            foreach (job j in  listJob)
+            {
+                itext +=(j.name +"\n");
+            }
+            await botClient.SendTextMessageAsync(
+                  chatId: chatid,
+                  text: "Bạn đang có "+ listJob.Count + " công việc chưa xử lý" + itext
+                );
+        }
+
+        private static async Task add(Telegram.Bot.Types.Message message)
         {
             job j = new job();
-            j.add("x",false,"01/01/2021","");
-            throw new NotImplementedException();
-        }
-
-        private static Task edit(Telegram.Bot.Types.Message message)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static Task delete(Telegram.Bot.Types.Message message)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static Task list(Telegram.Bot.Types.Message message)
-        {
-            throw new NotImplementedException();
-        }
-
-        static async Task add(Telegram.Bot.Types.Message message)
-        {
-                Console.WriteLine(message);
+            j.add("Nội dung công việc", false, "01/01/2021", "");
+            listJob.Add(j);
+                await botClient.SendTextMessageAsync(
+                  chatId: chatid,
+                  text: "Đã thêm nội dung " + j.name +" -- Danh sách công việc có  "+ listJob.Count  +""
+                );
         }
         static async Task auto(Telegram.Bot.Types.Message message)
         {
-                throw new NotImplementedException();
+            await botClient.SendTextMessageAsync(
+            chatId: chatid,
+            text: "Tự động nhắc việc"
+          );
         }
 
         void button1_Click(object sender, EventArgs e)
@@ -111,7 +136,7 @@ namespace TelegramBot
         {
             botClient = new TelegramBotClient("1675389030:AAGI74b3h8P7gwJemTwHPqiQHDHEMW2CoOs");
             var me = botClient.GetMeAsync().Result;
-            richTextBox1.Text = $"Hello, World! I am user {me.Id} and my name is {me.FirstName}.";
+            richTextBox1.Text = $"I am user {me.Id} and my name is {me.FirstName}.";
             botClient.OnMessage += Bot_OnMessage;
             botClient.StartReceiving();
 
