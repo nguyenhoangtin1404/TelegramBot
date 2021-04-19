@@ -50,6 +50,10 @@ namespace TelegramBot
                 case "/list":
                     await list(message);
                     break;
+                // hiển thị danh sách công việc đã hoàn thành
+                case "/listdone":
+                    await listdone(message);
+                    break;
 
                 // xóa việc
                 case "/delete":
@@ -72,12 +76,19 @@ namespace TelegramBot
          }
 
         private static async Task  done(Telegram.Bot.Types.Message message)
-        {
+        { 
+            
+            // /done is 5 character
+            string name = message.Text.Substring(5);
+            foreach (job j in listJob)
+            {
+                if (j.chatId == chatid.ToString() && j.name == name)
+                    j.status = true;
+            }
             await botClient.SendTextMessageAsync(
                      chatId: chatid,
-                     text: "Đã hoàn thành công việc"
+                     text: "Đã hoàn thành công việc: " + name
                    );
-
         }
 
         private static async Task edit(Telegram.Bot.Types.Message message)
@@ -90,6 +101,8 @@ namespace TelegramBot
 
         private static async Task delete(Telegram.Bot.Types.Message message)
         {
+            // /delete is 7 character
+            string name = message.Text.Substring(7);
             await botClient.SendTextMessageAsync(
                   chatId: chatid,
                   text: "Đã xóa công việc."
@@ -99,28 +112,55 @@ namespace TelegramBot
         private static async Task list(Telegram.Bot.Types.Message message)
         {
             string itext ="" ;
+            int icount = 0;
             foreach (job j in  listJob)
             {
-                itext +=(j.name +"\n");
+                if(j.chatId == chatid.ToString() && j.status == false)
+                {
+                    itext += (icount +". "+j.name + "\n");
+                    icount++;
+                }
             }
             await botClient.SendTextMessageAsync(
                   chatId: chatid,
-                  text: "Bạn đang có "+ listJob.Count + " công việc chưa xử lý" + itext
+                  text: "Bạn đang có "+ icount + " công việc chưa xử lý \n" + itext
+                );
+        }
+
+        private static async Task listdone(Telegram.Bot.Types.Message message)
+        {
+            string itext = "";
+            int dcount = 0;
+            foreach (job j in listJob)
+            {
+                if (j.chatId == chatid.ToString() && j.status == true)
+                {
+                    itext += (j.name + "\n");
+                    dcount++;
+                }
+            }
+            await botClient.SendTextMessageAsync(
+                  chatId: chatid,
+                  text: "Bạn đang có " + dcount + " công việc đã xử lý \n" + itext
                 );
         }
 
         private static async Task add(Telegram.Bot.Types.Message message)
         {
             job j = new job();
-            j.add("Nội dung công việc", false, "01/01/2021", "");
+            // /add is 4 character
+            j.add(chatid.ToString(), message.Text.Substring(4), false, System.DateTime.Now.ToString(), "");
             listJob.Add(j);
                 await botClient.SendTextMessageAsync(
                   chatId: chatid,
-                  text: "Đã thêm nội dung " + j.name +" -- Danh sách công việc có  "+ listJob.Count  +""
+                  text: "Đã thêm nội dung " + j.name +" Đang có "+ listJob.Count  +" Công việc"
                 );
         }
         static async Task auto(Telegram.Bot.Types.Message message)
         {
+            // /auto is 5 character
+            string time = message.Text.Substring(5); 
+
             await botClient.SendTextMessageAsync(
             chatId: chatid,
             text: "Tự động nhắc việc"

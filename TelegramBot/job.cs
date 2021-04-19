@@ -7,6 +7,7 @@ namespace TelegramBot
 {
     class job
     {
+        public string chatId { get; set;}
         public string name { get; set; }
         public bool status { get; set; }
         public string createDate { get; set; }
@@ -16,8 +17,9 @@ namespace TelegramBot
         {
 
         }
-        public void add(string strName,bool bStatus, string strCreateDate, string strEndDate)
+        public void add(string strChatId,string strName,bool bStatus, string strCreateDate, string strEndDate)
         {
+            chatId = strChatId;
             name = strName;
             status = bStatus;
             createDate = strCreateDate;
