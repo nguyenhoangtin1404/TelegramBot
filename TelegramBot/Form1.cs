@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+
 
 namespace TelegramBot
 {
@@ -19,6 +21,7 @@ namespace TelegramBot
         static ITelegramBotClient botClient;
         static Telegram.Bot.Types.Chat chatid;
         static List<job> listJob = new List<job>();
+        private System.Threading.Timer timer;
         public Form1()
         {
             InitializeComponent();
@@ -75,7 +78,7 @@ namespace TelegramBot
             }
          }
 
-        private static async Task  done(Telegram.Bot.Types.Message message)
+        private static async Task done(Telegram.Bot.Types.Message message)
         { 
             
             // /done is 5 character
@@ -156,6 +159,7 @@ namespace TelegramBot
                   text: "Đã thêm nội dung " + j.name +" Đang có "+ listJob.Count  +" Công việc"
                 );
         }
+       
         static async Task auto(Telegram.Bot.Types.Message message)
         {
             // /auto is 5 character
@@ -166,6 +170,14 @@ namespace TelegramBot
             text: "Tự động nhắc việc"
           );
         }
+        
+        static async Task nhacviec(ChatId id)
+        { 
+            await botClient.SendTextMessageAsync(
+                   chatId: id,
+                   text: "Bạn đang có xxxxxx"
+                 );
+        }
 
         void button1_Click(object sender, EventArgs e)
         {
@@ -174,12 +186,14 @@ namespace TelegramBot
 
         private void Form1_Load(object sender, EventArgs e)
         {
+           
+
             botClient = new TelegramBotClient("1675389030:AAGI74b3h8P7gwJemTwHPqiQHDHEMW2CoOs");
             var me = botClient.GetMeAsync().Result;
             richTextBox1.Text = $"I am user {me.Id} and my name is {me.FirstName}.";
             botClient.OnMessage += Bot_OnMessage;
             botClient.StartReceiving();
-
         }
+
     }
 }
